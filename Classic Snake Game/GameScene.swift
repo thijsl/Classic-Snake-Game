@@ -9,6 +9,9 @@ class GameScene: SKScene {
     private var currentDirection = CGVector(dx: 1, dy: 0)
     private var nextDirection = CGVector(dx: 1, dy: 0)
     
+    // Audio
+    private var crunchSound: SKAction?
+    
     // Scoring
     private var currentScore = 0
     private var highScore: Int {
@@ -38,6 +41,12 @@ class GameScene: SKScene {
     
     override func didMove(to view: SKView) {
         backgroundColor = .black
+        
+        // Load sound
+        if let soundURL = Bundle.main.url(forResource: "crunch", withExtension: "wav") {
+            crunchSound = SKAction.playSoundFileNamed(soundURL.lastPathComponent, waitForCompletion: false)
+        }
+        
         setupGame()
         setupScoreLabels()
         startGame()
@@ -54,7 +63,7 @@ class GameScene: SKScene {
     private func setupGame() {
         // Initialize snake
         let head = SKShapeNode(rectOf: CGSize(width: snakeBodySize, height: snakeBodySize))
-        head.fillColor = .systemBlue  // Changed to blue
+        head.fillColor = .systemBlue
         head.strokeColor = .clear
         head.position = CGPoint(x: playableRect.midX, y: playableRect.midY)
         addChild(head)
@@ -62,12 +71,6 @@ class GameScene: SKScene {
         
         // Add food
         spawnFood()
-        
-        // Add border
-        let border = SKShapeNode(rect: playableRect)
-        border.strokeColor = .white
-        border.lineWidth = 1.0
-        addChild(border)
     }
     
     private func setupScoreLabels() {
@@ -215,6 +218,11 @@ class GameScene: SKScene {
         if let food = food {
             let distance = hypot(newPosition.x - food.position.x, newPosition.y - food.position.y)
             if distance < snakeBodySize {
+                // Play crunch sound
+                if let crunchSound = crunchSound {
+                    run(crunchSound)
+                }
+                
                 currentScore += 1
                 scoreLabel?.text = "Score: \(currentScore)"
                 spawnFood()
