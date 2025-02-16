@@ -177,21 +177,35 @@ class GameScene: SKScene {
     }
     
     private func resetGame() {
-        // Remove all game over menu nodes
-        childNode(withName: "gameOverMenu")?.removeFromParent()
+        // First, stop any ongoing game actions
+        removeAction(forKey: "snakeMovement")
         
-        // Clean up game elements
+        // Remove game over menu and ensure it's gone
+        enumerateChildNodes(withName: "gameOverMenu") { node, _ in
+            node.removeFromParent()
+        }
+        
+        // Clean up all game elements
         snake.forEach { $0.removeFromParent() }
+        snake.removeAll()
         food?.removeFromParent()
+        food = nil
         
-        // Reset score
+        // Reset game state
+        currentDirection = CGVector(dx: 1, dy: 0)
+        nextDirection = CGVector(dx: 1, dy: 0)
         currentScore = 0
+        
+        // Update UI
         scoreLabel?.text = "Score: 0"
         highScoreLabel?.text = "High: \(highScore)"
         
-        // Start new game
-        setupGame()
-        startGame()
+        // Ensure we're on the main thread for scene updates
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            self.setupGame()
+            self.startGame()
+        }
     }
     
     private func shareScore() {
