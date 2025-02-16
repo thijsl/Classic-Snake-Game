@@ -15,3 +15,7 @@ struct Classic_Snake_GameApp: App {
         }
     }
 }
+
+#Preview {
+    GameView()
+}
