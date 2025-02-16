@@ -171,14 +171,15 @@ class GameScene: SKScene {
         food?.removeFromParent()
         
         // Calculate grid positions within safe area
-        let gridWidth = Int(playableWidth / snakeBodySize)
-        let gridHeight = Int(playableHeight / snakeBodySize)
+        let gridWidth = Int((playableWidth) / snakeBodySize)
+        let gridHeight = Int((playableHeight) / snakeBodySize)
         
         // Generate random position within safe area
         var position: CGPoint
         repeat {
-            let x = Int.random(in: 0..<gridWidth) * Int(snakeBodySize) + Int(safeAreaInset)
-            let y = Int.random(in: 0..<gridHeight) * Int(snakeBodySize) + Int(safeAreaInset)
+            // Calculate grid-aligned positions
+            let x = CGFloat(Int.random(in: 0..<gridWidth)) * snakeBodySize + safeAreaInset
+            let y = CGFloat(Int.random(in: 0..<gridHeight)) * snakeBodySize + safeAreaInset
             position = CGPoint(x: x, y: y)
         } while snake.contains(where: { 
             abs($0.position.x - position.x) < snakeBodySize/2 && 
@@ -196,6 +197,8 @@ class GameScene: SKScene {
         currentDirection = nextDirection
         
         let head = snake.first!
+        
+        // Calculate new position with grid alignment
         var newPosition = CGPoint(
             x: head.position.x + currentDirection.dx * snakeBodySize,
             y: head.position.y + currentDirection.dy * snakeBodySize
@@ -213,6 +216,12 @@ class GameScene: SKScene {
         } else if newPosition.y > playableRect.maxY - snakeBodySize {
             newPosition.y = safeAreaInset
         }
+        
+        // Ensure grid alignment after wrapping
+        newPosition = CGPoint(
+            x: round((newPosition.x - safeAreaInset) / snakeBodySize) * snakeBodySize + safeAreaInset,
+            y: round((newPosition.y - safeAreaInset) / snakeBodySize) * snakeBodySize + safeAreaInset
+        )
         
         // Improved collision detection with food
         if let food = food {
