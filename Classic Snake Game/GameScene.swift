@@ -39,6 +39,9 @@ class GameScene: SKScene {
                height: playableHeight)
     }
     
+    // Add property for feedback
+    var foodFeedback: UIImpactFeedbackGenerator?
+    
     override func didMove(to view: SKView) {
         backgroundColor = .black
         
@@ -231,6 +234,10 @@ class GameScene: SKScene {
                 if let crunchSound = crunchSound {
                     run(crunchSound)
                 }
+                
+                // Trigger medium haptic for food collection
+                foodFeedback?.prepare()
+                foodFeedback?.impactOccurred()
                 
                 currentScore += 1
                 scoreLabel?.text = "Score: \(currentScore)"
