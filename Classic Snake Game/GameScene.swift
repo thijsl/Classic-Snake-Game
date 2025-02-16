@@ -124,49 +124,132 @@ class GameScene: SKScene {
         let gameOverLabel = SKLabelNode(text: "GAME OVER")
         gameOverLabel.fontName = "ArcadeClassic"
         gameOverLabel.fontSize = 48
-        gameOverLabel.position = CGPoint(x: 0, y: 60)
+        gameOverLabel.position = CGPoint(x: 0, y: 80)
         gameOverNode.addChild(gameOverLabel)
         
         let scoreLabel = SKLabelNode(text: "Score: \(currentScore)")
         scoreLabel.fontName = "ArcadeClassic"
         scoreLabel.fontSize = 32
-        scoreLabel.position = CGPoint(x: 0, y: 0)
+        scoreLabel.position = CGPoint(x: 0, y: 20)
         gameOverNode.addChild(scoreLabel)
         
         let highScoreLabel = SKLabelNode(text: "High Score: \(highScore)")
         highScoreLabel.fontName = "ArcadeClassic"
         highScoreLabel.fontSize = 32
-        highScoreLabel.position = CGPoint(x: 0, y: -40)
+        highScoreLabel.position = CGPoint(x: 0, y: -20)
         gameOverNode.addChild(highScoreLabel)
         
-        let messageLabel = SKLabelNode(text: "Tap to try again!")
-        messageLabel.fontName = "ArcadeClassic"
-        messageLabel.fontSize = 24
-        messageLabel.position = CGPoint(x: 0, y: -100)
-        gameOverNode.addChild(messageLabel)
+        // Add share button
+        let shareButton = SKShapeNode(rectOf: CGSize(width: 120, height: 40), cornerRadius: 10)
+        shareButton.fillColor = .systemBlue
+        shareButton.strokeColor = .clear
+        shareButton.position = CGPoint(x: -70, y: -80)
+        shareButton.name = "shareButton"
+        
+        let shareLabel = SKLabelNode(text: "Share")
+        shareLabel.fontName = "ArcadeClassic"
+        shareLabel.fontSize = 24
+        shareLabel.verticalAlignmentMode = .center
+        shareLabel.position = CGPoint(x: 0, y: 0)
+        shareButton.addChild(shareLabel)
+        gameOverNode.addChild(shareButton)
+        
+        // Add new game button
+        let newGameButton = SKShapeNode(rectOf: CGSize(width: 120, height: 40), cornerRadius: 10)
+        newGameButton.fillColor = .systemGreen
+        newGameButton.strokeColor = .clear
+        newGameButton.position = CGPoint(x: 70, y: -80)
+        newGameButton.name = "newGameButton"
+        
+        let newGameLabel = SKLabelNode(text: "New Game")
+        newGameLabel.fontName = "ArcadeClassic"
+        newGameLabel.fontSize = 24
+        newGameLabel.verticalAlignmentMode = .center
+        newGameLabel.position = CGPoint(x: 0, y: 0)
+        newGameButton.addChild(newGameLabel)
+        gameOverNode.addChild(newGameButton)
         
         gameOverNode.position = CGPoint(x: frame.midX, y: frame.midY)
         addChild(gameOverNode)
         
-        // Enable touch handling for restart
+        // Enable touch handling for buttons
         isUserInteractionEnabled = true
     }
     
+    private func resetGame() {
+        // Remove all game over menu nodes
+        childNode(withName: "gameOverMenu")?.removeFromParent()
+        
+        // Clean up game elements
+        snake.forEach { $0.removeFromParent() }
+        food?.removeFromParent()
+        
+        // Reset score
+        currentScore = 0
+        scoreLabel?.text = "Score: 0"
+        highScoreLabel?.text = "High: \(highScore)"
+        
+        // Start new game
+        setupGame()
+        startGame()
+    }
+    
+    private func shareScore() {
+        let shareText = "🐍 I scored \(currentScore) points in Classic Snake Game! #ClassicSnakeGame"
+        
+        guard let viewController = self.view?.window?.rootViewController else { return }
+        
+        DispatchQueue.main.async {
+            let activityViewController = UIActivityViewController(
+                activityItems: [shareText],
+                applicationActivities: nil
+            )
+            
+            // Configure for iPad
+            if let popoverController = activityViewController.popoverPresentationController {
+                popoverController.sourceView = viewController.view
+                
+                // Get the share button's position in the window coordinate space
+                if let gameOverMenu = self.childNode(withName: "gameOverMenu"),
+                   let shareButton = gameOverMenu.childNode(withName: "shareButton") {
+                    let buttonPosition = shareButton.convert(CGPoint.zero, to: self)
+                    let scenePosition = self.view?.convert(buttonPosition, to: viewController.view) ?? .zero
+                    
+                    popoverController.sourceRect = CGRect(
+                        origin: scenePosition,
+                        size: CGSize(width: 120, height: 40)
+                    )
+                } else {
+                    // Fallback to center if button not found
+                    popoverController.sourceRect = viewController.view.bounds
+                }
+                popoverController.permittedArrowDirections = [.any]
+            }
+            
+            viewController.present(activityViewController, animated: true)
+        }
+    }
+    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        // Only handle touches when game is over
-        if action(forKey: "snakeMovement") == nil {
-            // Remove game over menu
-            children.filter { $0.name == "gameOverMenu" }.forEach { $0.removeFromParent() }
+        guard let touch = touches.first else { return }
+        let location = touch.location(in: self)
+        
+        // Check if game is over and menu exists
+        if let gameOverMenu = childNode(withName: "gameOverMenu") {
+            let menuLocation = gameOverMenu.convert(location, from: self)
             
-            // Reset game
-            snake.forEach { $0.removeFromParent() }
-            food?.removeFromParent()
-            currentScore = 0
-            scoreLabel?.text = "Score: 0"
+            // Check for share button tap
+            if let shareButton = gameOverMenu.childNode(withName: "shareButton") as? SKShapeNode,
+               shareButton.contains(menuLocation) {
+                shareScore()
+                return
+            }
             
-            // Restart game
-            setupGame()
-            startGame()
+            // Check for new game button tap
+            if let newGameButton = gameOverMenu.childNode(withName: "newGameButton") as? SKShapeNode,
+               newGameButton.contains(menuLocation) {
+                resetGame()
+            }
         }
     }
     
