@@ -45,6 +45,9 @@ class GameScene: SKScene {
     // Add tracking for digesting food
     private var digestingFoodPositions: [(position: CGPoint, remainingSegments: Int)] = []
     
+    // Add property to store the last game screenshot
+    private var lastGameScreenshot: UIImage?
+    
     override func didMove(to view: SKView) {
         backgroundColor = .black
         
@@ -107,6 +110,9 @@ class GameScene: SKScene {
     
     private func gameOver() {
         removeAction(forKey: "snakeMovement")
+        
+        // Capture screenshot before adding game over menu
+        captureGameScreenshot()
         
         // Update high score if needed
         if currentScore > highScore {
@@ -172,7 +178,21 @@ class GameScene: SKScene {
         isUserInteractionEnabled = true
     }
     
+    private func captureGameScreenshot() {
+        guard let view = self.view else { return }
+        
+        // Create a new UIGraphicsImageRenderer with the view's bounds
+        let renderer = UIGraphicsImageRenderer(bounds: view.bounds)
+        
+        lastGameScreenshot = renderer.image { ctx in
+            view.drawHierarchy(in: view.bounds, afterScreenUpdates: true)
+        }
+    }
+    
     private func resetGame() {
+        // Clear the screenshot when starting a new game
+        lastGameScreenshot = nil
+        
         // First, stop any ongoing game actions
         removeAction(forKey: "snakeMovement")
         
@@ -209,9 +229,17 @@ class GameScene: SKScene {
         
         guard let viewController = self.view?.window?.rootViewController else { return }
         
+        // Create array of items to share
+        var itemsToShare: [Any] = [shareText]
+        
+        // Add screenshot if available
+        if let screenshot = lastGameScreenshot {
+            itemsToShare.append(screenshot)
+        }
+        
         DispatchQueue.main.async {
             let activityViewController = UIActivityViewController(
-                activityItems: [shareText],
+                activityItems: itemsToShare,
                 applicationActivities: nil
             )
             
