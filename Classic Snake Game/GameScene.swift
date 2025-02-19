@@ -42,6 +42,9 @@ class GameScene: SKScene {
     // Add property for feedback
     var foodFeedback: UIImpactFeedbackGenerator?
     
+    // Add tracking for digesting food
+    private var digestingFoodPositions: [(position: CGPoint, remainingSegments: Int)] = []
+    
     override func didMove(to view: SKView) {
         backgroundColor = .black
         
@@ -288,7 +291,6 @@ class GameScene: SKScene {
     
     private func moveSnake() {
         currentDirection = nextDirection
-        
         let head = snake.first!
         
         // Calculate new position with grid alignment
@@ -316,23 +318,28 @@ class GameScene: SKScene {
             y: round((newPosition.y - safeAreaInset) / snakeBodySize) * snakeBodySize + safeAreaInset
         )
         
+        // Update digesting food positions
+        digestingFoodPositions = digestingFoodPositions.map { (position, remaining) in
+            (position, remaining - 1)
+        }.filter { $0.remainingSegments > 0 }
+        
         // Improved collision detection with food
         if let food = food {
             let distance = hypot(newPosition.x - food.position.x, newPosition.y - food.position.y)
             if distance < snakeBodySize {
-                // Play crunch sound
+                // Play crunch sound and haptic feedback
                 if let crunchSound = crunchSound {
                     run(crunchSound)
                 }
-                
-                // Trigger medium haptic for food collection
                 foodFeedback?.prepare()
                 foodFeedback?.impactOccurred()
+                
+                // Add new digesting food position with length equal to current snake length
+                digestingFoodPositions.append((food.position, snake.count))
                 
                 currentScore += 1
                 scoreLabel?.text = "Score: \(currentScore)"
                 spawnFood()
-                // Don't remove the tail when food is eaten
             } else {
                 snake.last?.removeFromParent()
                 snake.removeLast()
@@ -348,6 +355,15 @@ class GameScene: SKScene {
         newHead.fillColor = .systemBlue
         newHead.strokeColor = .clear
         newHead.position = newPosition
+        
+        // Check if the new head position matches any digesting food position
+        if let digestingIndex = digestingFoodPositions.firstIndex(where: { 
+            abs($0.position.x - newPosition.x) < snakeBodySize/2 && 
+            abs($0.position.y - newPosition.y) < snakeBodySize/2 
+        }) {
+            newHead.fillColor = .yellow // Color the segment yellow when it's over digesting food
+        }
+        
         addChild(newHead)
         snake.insert(newHead, at: 0)
     }
