@@ -78,18 +78,16 @@ class GameScene: SKScene {
     
     private func setupScoreLabels() {
         scoreLabel = SKLabelNode(text: "Score: 0")
-        scoreLabel?.fontName = "ArcadeClassic"
-        scoreLabel?.fontSize = 24
-        // Position at bottom left
-        scoreLabel?.position = CGPoint(x: safeAreaInset + 60, y: safeAreaInset)
+        scoreLabel?.fontName = ".AppleSystemUIFontMonospaced-Bold"
+        scoreLabel?.fontSize = 16
+        scoreLabel?.position = CGPoint(x: safeAreaInset + 20, y: safeAreaInset)
         scoreLabel?.horizontalAlignmentMode = .left
         addChild(scoreLabel!)
         
         highScoreLabel = SKLabelNode(text: "High: \(highScore)")
-        highScoreLabel?.fontName = "ArcadeClassic"
-        highScoreLabel?.fontSize = 24
-        // Position at bottom right
-        highScoreLabel?.position = CGPoint(x: frame.width - safeAreaInset - 60, y: safeAreaInset)
+        highScoreLabel?.fontName = ".AppleSystemUIFontMonospaced-Bold"
+        highScoreLabel?.fontSize = 16
+        highScoreLabel?.position = CGPoint(x: frame.width - safeAreaInset - 20, y: safeAreaInset)
         highScoreLabel?.horizontalAlignmentMode = .right
         addChild(highScoreLabel!)
     }
@@ -117,32 +115,32 @@ class GameScene: SKScene {
         gameOverNode.name = "gameOverMenu"
         
         let gameOverLabel = SKLabelNode(text: "GAME OVER")
-        gameOverLabel.fontName = "ArcadeClassic"
+        gameOverLabel.fontName = ".AppleSystemUIFontMonospaced-Bold"
         gameOverLabel.fontSize = 48
         gameOverLabel.position = CGPoint(x: 0, y: 80)
         gameOverNode.addChild(gameOverLabel)
         
         let scoreLabel = SKLabelNode(text: "Score: \(currentScore)")
-        scoreLabel.fontName = "ArcadeClassic"
+        scoreLabel.fontName = ".AppleSystemUIFontMonospaced-Bold"
         scoreLabel.fontSize = 32
         scoreLabel.position = CGPoint(x: 0, y: 20)
         gameOverNode.addChild(scoreLabel)
         
         let highScoreLabel = SKLabelNode(text: "High Score: \(highScore)")
-        highScoreLabel.fontName = "ArcadeClassic"
+        highScoreLabel.fontName = ".AppleSystemUIFontMonospaced-Bold"
         highScoreLabel.fontSize = 32
         highScoreLabel.position = CGPoint(x: 0, y: -20)
         gameOverNode.addChild(highScoreLabel)
         
         // Add share button
-        let shareButton = SKShapeNode(rectOf: CGSize(width: 120, height: 40), cornerRadius: 10)
+        let shareButton = SKShapeNode(rectOf: CGSize(width: 160, height: 40), cornerRadius: 10)
         shareButton.fillColor = .systemBlue
         shareButton.strokeColor = .clear
-        shareButton.position = CGPoint(x: -70, y: -80)
+        shareButton.position = CGPoint(x: 0, y: -80)
         shareButton.name = "shareButton"
         
         let shareLabel = SKLabelNode(text: "Share")
-        shareLabel.fontName = "ArcadeClassic"
+        shareLabel.fontName = ".AppleSystemUIFontMonospaced-Bold"
         shareLabel.fontSize = 24
         shareLabel.verticalAlignmentMode = .center
         shareLabel.position = CGPoint(x: 0, y: 0)
@@ -150,14 +148,14 @@ class GameScene: SKScene {
         gameOverNode.addChild(shareButton)
         
         // Add new game button
-        let newGameButton = SKShapeNode(rectOf: CGSize(width: 120, height: 40), cornerRadius: 10)
+        let newGameButton = SKShapeNode(rectOf: CGSize(width: 160, height: 40), cornerRadius: 10)
         newGameButton.fillColor = .systemGreen
         newGameButton.strokeColor = .clear
-        newGameButton.position = CGPoint(x: 70, y: -80)
+        newGameButton.position = CGPoint(x: 0, y: -140)
         newGameButton.name = "newGameButton"
         
         let newGameLabel = SKLabelNode(text: "New Game")
-        newGameLabel.fontName = "ArcadeClassic"
+        newGameLabel.fontName = ".AppleSystemUIFontMonospaced-Bold"
         newGameLabel.fontSize = 24
         newGameLabel.verticalAlignmentMode = .center
         newGameLabel.position = CGPoint(x: 0, y: 0)
@@ -226,7 +224,7 @@ class GameScene: SKScene {
                     
                     popoverController.sourceRect = CGRect(
                         origin: scenePosition,
-                        size: CGSize(width: 120, height: 40)
+                        size: CGSize(width: 160, height: 40)
                     )
                 } else {
                     // Fallback to center if button not found
@@ -365,8 +363,8 @@ class GameScene: SKScene {
     override func didChangeSize(_ oldSize: CGSize) {
         super.didChangeSize(oldSize)
         // Update score labels position when screen size changes
-        scoreLabel?.position = CGPoint(x: safeAreaInset + 60, y: safeAreaInset)
-        highScoreLabel?.position = CGPoint(x: frame.width - safeAreaInset - 60, y: safeAreaInset)
+        scoreLabel?.position = CGPoint(x: safeAreaInset + 20, y: safeAreaInset)
+        highScoreLabel?.position = CGPoint(x: frame.width - safeAreaInset - 20, y: safeAreaInset)
     }
     
     @objc private func handleDirectionChange(_ notification: Notification) {
