@@ -361,7 +361,7 @@ class GameScene: SKScene {
             abs($0.position.x - newPosition.x) < snakeBodySize/2 && 
             abs($0.position.y - newPosition.y) < snakeBodySize/2 
         }) {
-            newHead.fillColor = .yellow // Color the segment yellow when it's over digesting food
+            newHead.fillColor = .systemTeal // Color the segment teal when it's over digesting food
         }
         
         addChild(newHead)
