@@ -112,11 +112,6 @@ class GameScene: SKScene {
             highScore = currentScore
         }
         
-        // Submit score to Game Center
-        if let gameCenter = (scene?.view?.window?.rootViewController as? UIHostingController<GameView>)?.rootView.gameCenter {
-            gameCenter.submitScore(currentScore)
-        }
-        
         // Show game over menu
         let gameOverNode = SKNode()
         gameOverNode.name = "gameOverMenu"

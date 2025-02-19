@@ -1,9 +1,7 @@
 import SwiftUI
 import SpriteKit
-import GameKit
 
 struct GameView: View {
-    @StateObject var gameCenter = GameCenterManager()
     private let directionFeedback = UIImpactFeedbackGenerator(style: .light)
     private let foodFeedback = UIImpactFeedbackGenerator(style: .medium)
     
@@ -49,9 +47,6 @@ struct GameView: View {
                             }
                         }
                 )
-        }
-        .onAppear {
-            gameCenter.authenticatePlayer()
         }
     }
 } 
